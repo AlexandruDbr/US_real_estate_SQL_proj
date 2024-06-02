@@ -1,16 +1,11 @@
-------------------------------Analysis of real estate transactions > 2k USD in United states Conneticut Jan 2021---------------------------
---Data sources:
-	-- Real estate transactions are from US The Office of Policy and Management: https://catalog.data.gov/dataset/real-estate-sales-2001-2018
-	-- List of States, Cities, Counties from "grammakov": https://github.com/grammakov/USA-cities-and-states/blob/master/us_cities_states_counties.csv
+------------------------------Analysis of real estate transactions > 2k USD in United states Conneticut Jan 2022---------------------------
+--Data source: Real estate transactions are from US The Office of Policy and Management: https://catalog.data.gov/dataset/real-estate-sales-2001-2018
 	
 
 USE USdata;
 
 
-SELECT * FROM TransactionsJ2022;
-
-
---1. This point was done in order to prepare the latitude and longitude for extraction in Python scrip. You can use the modified data set directly.
+--1. This point was done in order to prepare the latitude and longitude for extraction in Python script. You can use the modified data set directly.
 
 -- Delete word "POINT" from "Location" column and create a 2 new columns: Latitude and longitude based on 'Location' file
 
@@ -22,8 +17,6 @@ GO
 UPDATE RealEstateUS 
 SET Location = TRIM(')' FROM Location);
 GO
-
-select * from RealEstateUS;
 
 	-- Create new columns
 ALTER TABLE RealEstateUS
@@ -47,7 +40,6 @@ SET Latitude = SUBSTRING(Location, CHARINDEX(' ', Location, 0)+1, LEN(Location))
 --2. Delete the spaces from the exact_loc column and update the able
 UPDATE TransactionsJ2022
 SET exact_loc = TRIM(exact_loc)
-
 
 
 --3. Create a column rowid and create a backup table to get the state, country and posta code from extact_location column
@@ -74,13 +66,13 @@ as piv
 
 
 --Transform the back up table
---1. Delete column [col1[ as we don't need street nr
+--4. Delete column [col1[ as we don't need street nr
 ALTER TABLE TransactionsJ2022_backup
 DROP COLUMN col1
 
 
 
---2. Update col7, col5, col3, col6 with the appropiate values and rename them "Postal_code", "City", "State", "Country" 
+--5. Update col7, col5, col3, col6 with the appropiate values and rename them "Postal_code", "City", "State", "Country" 
 UPDATE TransactionsJ2022_backup 
 SET
 	col7 = RIGHT(--use case to update 'col7' (the following "Country" col) with appropiate country from the last not null row value 
@@ -122,7 +114,7 @@ sp_rename'TransactionsJ2022_backup.[col5]', 'City', 'COLUMN' --change [col5] nam
 sp_rename'TransactionsJ2022_backup.[col3]', 'Postal_code', 'COLUMN' --change [col3] name to Postal_code
 
 
---3. Delete othe columns that will not be used in the analysis and make "State" rows in the same format
+--6. Delete othe columns that will not be used in the analysis and make "State" rows in the same format
 ALTER TABLE TransactionsJ2022_backup
 DROP COLUMN col2, col8
 
@@ -147,19 +139,17 @@ DELETE FROM TransactionsJ2022_backup WHERE State <> 'CT' --delete other rows whe
 
 
 
---3. Create a temp table to store the sales amount by State and City for the first week
+--7. Create a temp table to store the sales amount by State and City for the first week
 SELECT 
 	State,
 	City,
-	trans_day,
+	ISNULL([1],0) _1,
+	ISNULL([2],0) _2,
 	ISNULL([3],0) _3,
 	ISNULL([4],0) _4,
 	ISNULL([5],0) _5,
 	ISNULL([6],0) _6,
-	ISNULL([7],0) _7,
-	ISNULL([8],0) _8,
-	ISNULL([9],0) _9,
-	ISNULL([10],0) _10
+	ISNULL([7],0) _7
 INTO #Transactionsbyday
 FROM 
 (SELECT 
@@ -175,37 +165,14 @@ GROUP BY
 	) as Main_tbl
 PIVOT(
 	SUM(total_sales)
-	FOR trans_day IN ([3],[4], [5], [6], [7], [8], [9], [10])
+	FOR trans_day IN ([1],[2],[3],[4],[5],[6],[7])
 ) as pivt
 
-SELECT * FROM #Transactionsbyday
 
-DROP TABLE #Transactionsbyday
-
+SELECT * FROM #Transactionsbyday --check
 
 
---Replace null values from col 3 and 4 with 0
-UPDATE #Transactionsbyday
-SET [3] = CASE
-		WHEN [3] IS NULL 
-		THEN 0
-	ELSE [3]
-	END
-
-
-UPDATE #Transactionsbyday
-SET [4] = CASE 
-		WHEN [4] IS NULL
-		THEN 0
-		ELSE [4]
-		END
-
-SELECT * FROM #Transactionsbyday
-
-
-
-
---4. Select the 2nd highest cummulated sales amount per city (if more than 1 transction was done per city, else return the only transaction) 
+--8. Select the 2nd highest cummulated sales amount per city (if more than 1 transction was done per city, else return the only transaction) 
 --Also, calculate the average sales value per city create another column to show the difference from the average sales amount per city)
 SELECT
 	City,
@@ -232,7 +199,7 @@ ORDER BY City
 
 
 
---5. Update column "State" where null based on the Cities and postal codes where state is not null
+--9. Update column "State" where null based on the Cities and postal codes where state is not null
 UPDATE a
 SET a.State = ISNULL(a.State, b.State)
 FROM TransactionsJ2022_backup as a
@@ -248,7 +215,7 @@ ORDER BY City;
 
 
 
---6. Show total property sales per property type by city and the number of transactions
+--10. Show total property sales per property type by city and the number of transactions
 WITH get_sales AS
 (
 SELECT 
@@ -268,18 +235,18 @@ GROUP BY
 )
 Select
 	DISTINCT(piv.City),
-	ISNULL([Condo],0) Condo,
-	ISNULL([Four Family], 0) [Four Famliy],
-	ISNULL([Single Family], 0) [Single Family],
-	ISNULL([Three Family], 0) [Three Family],
-	ISNULL([Two Family], 0) [Two Family],
+	ISNULL([Residential],0) Residential,
+	ISNULL([Vacant Land], 0) [Vacant Land],
+	ISNULL([Apartments], 0) [Apartments],
+	ISNULL([Industrial], 0) [Industrial],
+	ISNULL([Commercial], 0) [Commercial],
 	ISNULL([Unknown], 0) [Unknown],
 	COUNT(b.Serial_Number) OVER(PARTITION BY b.City) AS count_transact
 FROM get_sales
 PIVOT
 (
 SUM(sales)
-FOR Property_type IN([Condo], [Four Family], [Single Family], [Three Family], [Two Family], [Unknown])
+FOR Property_type IN([Residential], [Vacant Land], [Apartments], [Industrial], [Commercial], [Unknown])
 ) as piv
 INNER JOIN TransactionsJ2022_backup as b
 ON piv.City = b.City
@@ -287,44 +254,55 @@ ORDER BY piv.City ASC
 
 
 
---7. DELETE columns Non_Use_Code, Assessor_Remarks, OPM_remarks. Use transactions along with SAVE TRANSACTION and ROLLBACK to be able to access its inital state
-BEGIN TRANSACTION delete_cols
+--11. DELETE columns Non_Use_Code, Assessor_Remarks, OPM_remarks from TransactionsJ2022_backup. Use transactions with SAVE TRANSACTION and ROLLBACK to be able to access its inital state
+BEGIN TRANSACTION delete_cols --delete columns
 	ALTER TABLE TransactionsJ2022_backup
 	DROP COLUMN Non_Use_Code, Assessor_Remarks,OPM_remarks;
 SAVE TRANSACTION savepoint1;
 
 ROLLBACK TRANSACTION delete_cols; -- run if you want to go to intial state
 
+SELECT * FROM TransactionsJ2022_backup;
 
 
---8. Select the number of properties sold by Property_type and avg sales amount per day
+
+--12. Count the number of properties sold and and avg sales amount by Property_type per day
 WITH base_tbl AS
 (
 SELECT 
 	DATEPART(d, Date_Recorded) as day,
-	AVG(Sale_Amount) as avg_sales,
-	COUNT(Serial_Number) count_transact,
+	Serial_Number,
+	Sale_Amount,
 	CASE 
         WHEN Property_Type IS NULL THEN 'Unknown'
         ELSE Property_Type
 		END as Property_type
 FROM TransactionsJ2022_backup
-GROUP BY
-	DATEPART(m, Date_Recorded),
-	DATEPART(d, Date_Recorded),
-	Property_Type
 )
 SELECT	
 	DISTINCT(day),
-	avg_sales,
-	ISNULL([Condo],0) Condo,
-	ISNULL([Four Family], 0) [Four Famliy],
-	ISNULL([Single Family], 0) [Single Family],
-	ISNULL([Three Family], 0) [Three Family],
-	ISNULL([Two Family], 0) [Two Family],
+	AVG(Sale_Amount) as avg_sales,
+	ISNULL([Residential],0) Residential,
+	ISNULL([Vacant Land], 0) [Vacant Land],
+	ISNULL([Apartments], 0) [Apartments],
+	ISNULL([Industrial], 0) [Industrial],
+	ISNULL([Commercial], 0) [Commercial],
 	ISNULL([Unknown], 0) [Unknown]
 FROM base_tbl
 PIVOT
-(SUM(count_transact)
-FOR Property_type IN([Condo], [Four Family], [Single Family], [Three Family], [Two Family], [Unknown])
+(COUNT(Serial_Number)
+FOR Property_type IN([Residential], [Vacant Land], [Apartments], [Industrial], [Commercial], [Unknown])
 ) as piv
+GROUP BY
+	day,
+	Residential,
+	[Vacant Land],
+	[Apartments],
+	[Industrial],
+	[Commercial],
+	[Unknown]
+
+
+SELECT * FROM RealEstateJ2022
+
+SELECT * FROM RealEstateUS

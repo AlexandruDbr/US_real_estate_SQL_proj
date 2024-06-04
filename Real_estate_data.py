@@ -21,7 +21,7 @@ con = URL.create(
 
 #2. connect to DB
 engine = create_engine(con)
-query = '''SELECT * FROM RealEstateUS WHERE Latitude IS NOT NULL AND Longitude IS NOT NULL'''
+query = '''SELECT * FROM Real_Estate_Sales2022 WHERE Latitude IS NOT NULL  AND Longitude IS NOT NULL'''
 
 #3.Import SQL in a dataframe
 df = pd.read_sql(query, engine)
@@ -44,15 +44,14 @@ for i1, i2 in zip(df['Latitude'], df['Longitude']):
     Longitude = str(i2)
     location = geolocator.reverse(Latitude+","+Longitude)
     location_exact.append(location)
+    print(location)
 
 
 #8.Append location exact in the table
-df['exact_loc'].update(location_exact)
-
-print(type(df['Latitude']))
+df['exact_loc'] = location_exact
 
 #9.Add new table in SQL
-df.to_sql("RealEstateJ2022", con=engine, if_exists='replace', index=False)
+# df.to_sql("RealEstateJ2022", con=engine, if_exists='replace', index=False)
 
 
-# df.to_csv(r'D:\Projects and practice\Git projects\RealEstateJ2021.csv')
+df.to_csv(r'D:\Projects and practice\Git projects\US_real_estate_SQL_proj - developing env\Transactions2022.csv', index=False)

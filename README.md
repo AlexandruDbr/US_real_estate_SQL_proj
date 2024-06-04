@@ -4,7 +4,7 @@
 
 The scope of this project is to use SQL and python to modify, query and find insights in the data. 
 To achieve this, I used DML commands (Data Manipulation Language), such as UPDATE and DELETE to modify or delete certain characters from the data source, DDL commands(Data Definition Language) such as ALTER TABLE to add new columns, and other commands (subqueries, date functions, aggreations, Case, CTEs, Temporary tables, Transactions) <br>
-Also, I have used **Python** with **SQLAlchemy** and **Pandas** libraries to import and export data from and to a database, **geopy library** to extract the exact location based on two columns: Latitude and Longitude, and Python to append the new column to the data frame.
+Also, I have used **Python** with **SQLAlchemy** and **Pandas** libraries to import data from a database, to append the newly generated column to the data frame, and to export it into a .csv file. To extract the exact location I used  **geopy library** , based on two columns: Latitude and Longitude.
  
 
 ## About the data source
@@ -14,7 +14,11 @@ Link: https://catalog.data.gov/dataset/real-estate-sales-2001-2018
 
 
 ## How to navigate through this project:
-I have attached the modified data source, so you can run only the SQL scripts related to the modified dataset directly. However, in case you are interested to start from scratch, here's how:
+I have attached the initial data set, as well as the modified data source, so you can run only the SQL scripts related to the modified dataset directly. 
+**Data set without exact location:** Real_Estate_Sales2022.csv
+**Data set with exact location:** Transactions2022.csv
+
+In case you are interested to start from scratch and create the modified CSV file, here's how:
 
 
 1. First, run these SQL commands to create "Latitude" and "Longitude" columns from "Location" column.
@@ -47,7 +51,7 @@ UPDATE RealEstateUS
 SET Latitude = SUBSTRING(Location, CHARINDEX(' ', Location, 0)+1, LEN(Location));
 ```
 
-2. Then, run this Python script. All you have to do is replace your DB credentials in this part:
+2. Then, run the Python script "Import_location.py". All you have to do is replace your DB credentials in this part of the code block:
 
 ```python
 #1. create connection string URL

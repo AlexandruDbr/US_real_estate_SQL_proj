@@ -28,7 +28,7 @@ df = pd.read_sql(query, engine)
 
 
 #4.Check first 10 rows
-# print(df.head(10))
+print(df.head(10))
 
 
 #5.Make a Nominatim object and initialize Nominatim API  with the geoapiExercises parameter.
@@ -37,6 +37,8 @@ geolocator = Photon(user_agent="measurements", timeout= None)
 
 #6.Create a new column "Exactlocation"
 location_exact = []
+
+
 
 #7.Combine latitude and longitude in a tuple, get exact location based on coordonates and append them in "location_exact"
 for i1, i2 in zip(df['Latitude'], df['Longitude']):
@@ -47,11 +49,11 @@ for i1, i2 in zip(df['Latitude'], df['Longitude']):
     print(location)
 
 
+
 #8.Append location exact in the table
 df['exact_loc'] = location_exact
 
-#9.Add new table in SQL
-# df.to_sql("RealEstateJ2022", con=engine, if_exists='replace', index=False)
 
 
-df.to_csv(r'D:\Projects and practice\Git projects\US_real_estate_SQL_proj - developing env\Transactions2022.csv', index=False)
+#9.Export the table in CSV format
+df.to_csv(r'D:\Projects and practice\Git projects\US_real_estate_SQL_proj\Transactions2022.csv', index=False)

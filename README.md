@@ -2,7 +2,7 @@
 
 ## Overview:
 
-The scope of this project is to use SQL and python to modify, query and find insights in the data. 
+The scope of this project is to used SQL modify, query and find insights in the data. 
 To achieve this, I used DML commands (Data Manipulation Language), such as UPDATE and DELETE to modify or delete certain characters from the data source, DDL commands(Data Definition Language) such as ALTER TABLE to add new columns, and other commands (subqueries, date functions, aggreations, Case, CTEs, Temporary tables, Transactions) <br>
 Also, I have used **Python** with **SQLAlchemy** and **Pandas** libraries to import data from a database, to append the newly generated column to the data frame, and to export it into a .csv file. To extract the exact location I used  **geopy library** , based on two columns: Latitude and Longitude.
  
@@ -51,7 +51,7 @@ UPDATE RealEstateUS
 SET Latitude = SUBSTRING(Location, CHARINDEX(' ', Location, 0)+1, LEN(Location));
 ```
 
-2. Then, run the Python script "Import_location.py". All you have to do is replace your DB credentials in this part of the code block:
+2. Then, run the Python script "Import_location.py". All you have to do is replace your DB credentials and a file path in this parts of the code block:
 
 ```python
 #1. create connection string URL
@@ -66,8 +66,12 @@ con = URL.create(
          },
 
 )
+
+#9.Export the table in CSV format
+df.to_csv(r'<Your directory path>\Transactions2022.csv', index=False)
+
 ```
-And that's it, you are all set! You can run the queries from your DBMS.
+And that's it, you are all set! A new CSV file will be generated with the Postal Code, Street Number, Street Name, City, State, Country. All you have to do is to import the table into your DMBS and run the rest of the queries of this SQL file.
 
 
 ## Questions answered:

@@ -73,7 +73,7 @@ And that's it, you are all set! You can run the queries from your DBMS.
 ## Questions answered:
 1. What were the total sales per State and City in the first week? Create a temporary table to store this data, with days of the week as columns.
 2. What is the 2nd highest cummulated sales amount per city (if more than 1 transction was done per city, else return the only transaction). 
-Also, calculate the average sales value per city and create another column to show the difference from the average sales amount per city.
+Also, calculate the average sales value per city and create another column to show the difference between average sales amount per city and 2nd highest sales amount.
 3. What were the total sales per property type by city? How many transactions were done per city?
 4. What was the total number of properties sold, for each property type, per day? What was the average sales amount per day regardless of property type?
 
@@ -82,6 +82,7 @@ Also, calculate the average sales value per city and create another column to sh
 ## Transformations done:
 1. Delete white space from column "exact_loc" table Transactions2022.
 2. Add a new index column "rowid" in table Transactions2022. It must  be auto incremental.
-3. Create a backup table called "Transactions2022_backup" and add 6 columns by splitting "exact_loc"  before delimiter ','..
+3. Create a backup temporary table called "Transactions2022_backup" and add 6 columns by splitting "exact_loc"  before delimiter ','..
 4. I used CHARINDEX, SUBSTRING AND REVERSE to clear the null or compatible values from the previous 6 new columns added by taking advantage of certain patterns in the data. Then, I renamed the columns.
-5. Delete "col8" as it was not useful for this project.
+5. Delete "col8", "col1", "col2" as it was not useful for this project.
+6. Create a temporary table to store total sales by State and City in the first week.

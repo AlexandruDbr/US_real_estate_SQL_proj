@@ -180,7 +180,7 @@ SELECT * FROM #TransactionsJ2022_backup
 
 
 
---7. Create a temp table to store the sales amount by State and City for the first week
+--7. Create a temp table to store total sales by State and City in the first week
 SELECT 
 	State,
 	City,

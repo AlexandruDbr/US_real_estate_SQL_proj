@@ -1,10 +1,8 @@
-# Analysis of real estate transactions in Connecticut, United states Jan 2021
+# Analysis of real estate transactions from Connecticut, United states, January 2021
 
 ## Overview:
-
-The scope of this project is to used SQL modify, query and find insights in the data. 
-To achieve this, I used DML commands (Data Manipulation Language), such as UPDATE and DELETE to modify or delete certain characters from the data source, DDL commands(Data Definition Language) such as ALTER TABLE to add new columns, and other commands (subqueries, date functions, aggreations, Case, CTEs, Temporary tables, Transactions) <br>
-Also, I have used **Python** with **SQLAlchemy** and **Pandas** libraries to import data from a database, to append the newly generated column to the data frame, and to export it into a .csv file. To extract the exact location I used  **geopy library** , based on two columns: Latitude and Longitude.
+The scope of this project is to used SQL modify, query and find insights in the data using DML commands (Data Manipulation Language), such as UPDATE and DELETE to modify or delete certain characters from the data source, DDL commands(Data Definition Language) such as ALTER TABLE to add new columns, and other commands (subqueries, date functions, aggreations, Case, CTEs, Temporary tables, Transactions) <br>
+Also, I have used **Python** with **SQLAlchemy** and **Pandas** libraries to import data from a database, to append the new generated column to the data frame, and to export it into a .csv file. To extract the exact location I used  **geopy library** , based on two columns: Latitude and Longitude.
  
 
 ## About the data source
